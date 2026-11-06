@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VYRA</title>
+<meta name="description" content="VYRA is an AI Family Chief of Staff: an intelligence and coordination layer for family life. Invisible Intelligence. Human Control.">
+<meta property="og:title" content="VYRA · Your Family's AI Chief of Staff">
+<meta property="og:description" content="An intelligent layer that understands family life, anticipates what matters and helps households stay coordinated.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="assets/og.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#6543b1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* Layout: a quiet editorial column; the phone screens carry the visual weight. */
+  --bg:#f7f6fb; --surface:#ffffff; --ink:#1f1d33; --muted:#6b6880; --line:#e6e2ef;
+  --accent:#6543b1; --accent-ink:#ffffff; --accent-soft:#efe9fb; --accent-text:#553596; --glow:#b7a1e6;
+  --bezel:#17141f; --planned:#9a97ab;
+  --display:"Bricolage Grotesque", "Figtree", system-ui, sans-serif;
+  --body:"Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --r:20px; --max:1180px;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#121019; --surface:#1b1826; --ink:#efedf7; --muted:#a19db5; --line:#2c2839;
+    --accent:#8f6fe0; --accent-ink:#ffffff; --accent-soft:#251f38; --accent-text:#c7b4f5; --glow:#7f62cf;
+    --bezel:#000000; --planned:#7a7690; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#121019; --surface:#1b1826; --ink:#efedf7; --muted:#a19db5; --line:#2c2839;
+  --accent:#8f6fe0; --accent-ink:#ffffff; --accent-soft:#251f38; --accent-text:#c7b4f5; --glow:#7f62cf;
+  --bezel:#000000; --planned:#7a7690; color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:76px}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}*{transition:none!important;animation:none!important}}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.6;-webkit-font-smoothing:antialiased}
+img{max-width:100%;display:block}
+a{color:var(--accent-text)}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;letter-spacing:-.02em;line-height:1.08}
+h2{font-size:clamp(32px,4.6vw,54px);font-weight:800}
+h3{font-size:21px;font-weight:600;letter-spacing:-.01em}
+p{margin:0}
+.wrap{max-width:var(--max);margin:0 auto;padding:0 clamp(18px,4vw,40px)}
+section{padding:clamp(72px,10vw,128px) 0;border-top:1px solid var(--line)}
+.kicker{font-size:12px;letter-spacing:.16em;text-transform:uppercase;font-weight:700;color:var(--muted);margin-bottom:18px;display:flex;flex-wrap:wrap;gap:4px 10px;align-items:center}
+.kicker b{color:var(--accent-text);font-weight:700}
+.lede{font-size:clamp(18px,1.6vw,21px);color:var(--muted);max-width:62ch;margin-top:20px}
+.btn{display:inline-flex;align-items:center;gap:8px;border-radius:999px;padding:13px 22px;font:600 15px/1 var(--body);text-decoration:none;border:1px solid transparent;cursor:pointer;transition:transform .2s, background .2s}
+.btn:hover{transform:translateY(-1px)}
+.btn.primary{background:var(--accent);color:var(--accent-ink)}
+.btn.quiet{background:transparent;color:var(--ink);border-color:var(--line)}
+.btn.quiet:hover{border-color:var(--accent)}
+:focus-visible{outline:3px solid var(--glow);outline-offset:3px;border-radius:6px}
+.note{font-size:13px;color:var(--muted)}
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:5px 11px;border-radius:999px;background:var(--accent-soft);color:var(--accent-text);white-space:nowrap}
+.chip.planned{background:transparent;border:1px dashed var(--planned);color:var(--muted)}
+
+/* nav */
+.nav{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--bg) 86%,transparent);backdrop-filter:saturate(1.4) blur(14px);-webkit-backdrop-filter:saturate(1.4) blur(14px);border-bottom:1px solid var(--line)}
+.nav .wrap{display:flex;align-items:center;gap:28px;height:64px}
+.logo{font-family:var(--display);font-weight:800;font-size:22px;letter-spacing:.24em;color:var(--accent-text);text-decoration:none}
+.logo span{color:var(--glow)}
+.nav ul{display:flex;gap:24px;list-style:none;margin:0 auto 0 0;padding:0}
+.nav ul a{color:var(--muted);text-decoration:none;font-size:14px;font-weight:500}
+.nav ul a:hover,.nav ul a.on{color:var(--ink)}
+.theme{width:38px;height:38px;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;display:grid;place-items:center}
+.nav .btn{padding:10px 18px;font-size:14px}
+@media (max-width:900px){.nav ul{display:none}.nav .wrap{justify-content:space-between}.nav .right{margin-left:auto}}
+.right{display:flex;gap:10px;align-items:center}
+
+/* phone */
+.phone{width:var(--pw,300px);aspect-ratio:390/844;background:var(--bezel);border-radius:calc(var(--pw,300px)*.15);padding:calc(var(--pw,300px)*.032);box-shadow:0 40px 80px -30px rgba(40,22,90,.45),0 0 0 1px rgba(255,255,255,.06) inset;position:relative;flex:none}
+.phone .scr{width:100%;height:100%;border-radius:calc(var(--pw,300px)*.12);overflow:hidden;overflow-y:auto;background:#fbfaff;scrollbar-width:none}
+.phone .scr::-webkit-scrollbar{display:none}
+.phone .scr img{width:100%;height:auto}
+.phone::before{content:"";position:absolute;top:calc(var(--pw,300px)*.05);left:50%;transform:translateX(-50%);width:28%;height:calc(var(--pw,300px)*.07);background:var(--bezel);border-radius:999px;z-index:2}
+
+/* hero */
+.hero{border-top:0;padding:clamp(48px,7vw,96px) 0 clamp(64px,8vw,110px);overflow:hidden}
+.hero .wrap{display:grid;grid-template-columns:1.05fr .95fr;gap:48px;align-items:center}
+.wordmark{font-family:var(--display);font-weight:800;font-size:clamp(72px,11.5vw,150px);letter-spacing:.12em;line-height:.9;color:var(--accent-text);margin-left:-.04em}
+.wordmark span{color:var(--glow)}
+.hero h1{font-size:clamp(30px,3.8vw,48px);font-weight:600;margin-top:22px}
+.hero .lede{margin-top:18px}
+.tagline{margin-top:28px;font-family:var(--display);font-size:18px;font-weight:600;display:flex;flex-wrap:wrap;gap:4px 14px;align-items:center}
+.tagline i{font-style:normal;color:var(--muted);font-weight:400}
+.ctas{display:flex;gap:12px;flex-wrap:wrap;margin-top:34px}
+.stage{position:relative;display:flex;justify-content:center;align-items:center;min-height:560px}
+.stage .back{position:absolute;--pw:250px;transform:translate(-30%,8%) rotate(-6deg);opacity:.92}
+.stage .front{--pw:290px;transform:translateX(22%)}
+.stage figcaption{position:absolute;bottom:-34px;right:0;font-size:12px;color:var(--muted)}
+@media (max-width:900px){.hero .wrap{grid-template-columns:1fr}.stage{min-height:520px;margin-top:20px}.stage .front{--pw:250px;transform:translateX(18%)}.stage .back{--pw:210px}}
+
+/* problem */
+.split{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:56px}
+@media (max-width:860px){.split{grid-template-columns:1fr}}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:30px;display:flex;flex-direction:column;gap:22px}
+.panel h3{font-size:19px}
+.scatter{display:flex;flex-wrap:wrap;gap:10px}
+.scatter span{font-size:14px;padding:8px 13px;border-radius:12px;border:1px solid var(--line);background:var(--bg)}
+.scatter span:nth-child(3n){transform:rotate(-2deg)}.scatter span:nth-child(4n){transform:rotate(2.5deg)}
+.you{display:flex;align-items:center;gap:14px;padding:16px;border-radius:14px;background:var(--bg);border:1px dashed var(--planned)}
+.you .dot{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:var(--line);font-weight:700;flex:none}
+.flow{display:flex;flex-direction:column;gap:10px}
+.flow .src{display:flex;flex-wrap:wrap;gap:6px}
+.flow .src span{font-size:12px;padding:5px 10px;border-radius:999px;background:var(--bg);border:1px solid var(--line);color:var(--muted)}
+.flow .bar{border-radius:14px;padding:14px 16px;background:var(--accent);color:var(--accent-ink);font-weight:600;font-family:var(--display);letter-spacing:.04em}
+.flow .arrow{color:var(--muted);text-align:center;font-size:18px;line-height:1}
+.flow .out{border:1px solid var(--line);border-radius:14px;padding:14px 16px;background:var(--bg)}
+.flow .out small{display:block;color:var(--muted);font-size:13px}
+.big-quote{font-family:var(--display);font-size:clamp(22px,2.4vw,30px);font-weight:600;max-width:30ch;margin-top:56px;line-height:1.25}
+.big-quote span{color:var(--accent-text)}
+
+/* demo */
+.demo{display:grid;grid-template-columns:260px 1fr;gap:28px;margin-top:52px;align-items:start}
+@media (max-width:860px){.demo{grid-template-columns:1fr}}
+.steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px}
+@media (max-width:860px){.steps{flex-direction:row;overflow-x:auto;padding-bottom:6px}}
+.steps button{width:100%;text-align:left;background:none;border:0;border-left:2px solid var(--line);padding:12px 16px;font:500 16px var(--body);color:var(--muted);cursor:pointer;display:flex;gap:12px;align-items:baseline;white-space:nowrap}
+.steps button em{font-style:normal;font-size:12px;font-variant-numeric:tabular-nums;color:var(--planned)}
+.steps button[aria-selected="true"]{color:var(--ink);border-left-color:var(--accent);font-weight:700}
+.steps button[aria-selected="true"] em{color:var(--accent-text)}
+@media (max-width:860px){.steps button{border-left:0;border-bottom:2px solid var(--line)}.steps button[aria-selected="true"]{border-bottom-color:var(--accent)}}
+.stagebox{background:var(--surface);border:1px solid var(--line);border-radius:24px;padding:clamp(22px,3vw,36px);min-height:470px;display:flex;flex-direction:column;gap:20px}
+.stagebox .head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap}
+.stagebox .head p{color:var(--muted);max-width:52ch;margin-top:6px}
+.msg{background:var(--bg);border:1px solid var(--line);border-radius:16px;padding:18px 20px;max-width:520px}
+.msg .from{font-size:12px;color:var(--muted);margin-bottom:8px;display:flex;justify-content:space-between}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.fact{border:1px solid var(--line);border-radius:14px;padding:14px 16px;background:var(--bg)}
+.fact small{display:block;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:700;margin-bottom:4px}
+.fact b{font-weight:600}
+.fact .why{display:block;font-size:13px;color:var(--muted);margin-top:4px}
+.outputs{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}
+.outputs .fact ul{margin:6px 0 0;padding-left:18px;font-size:14px}
+.timeline{list-style:none;margin:6px 0 0;padding:0;font-size:14px}
+.timeline li{display:flex;gap:10px;padding:4px 0}
+.timeline li span{min-width:84px;color:var(--muted);font-variant-numeric:tabular-nums}
+.approve{display:flex;flex-direction:column;gap:10px}
+.arow{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:14px 16px;border:1px solid var(--line);border-radius:14px;background:var(--bg)}
+.arow small{display:block;color:var(--muted);font-size:13px}
+.arow button{flex:none;border-radius:999px;border:1px solid var(--accent);background:transparent;color:var(--accent-text);font:600 13px var(--body);padding:8px 14px;cursor:pointer}
+.arow button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+.status{font-size:14px;font-weight:600;color:var(--accent-text)}
+.stagebox .nav2{display:flex;justify-content:space-between;margin-top:auto;padding-top:8px}
+
+/* product */
+.product{display:grid;grid-template-columns:1fr auto;gap:56px;margin-top:52px;align-items:center}
+@media (max-width:860px){.product{grid-template-columns:1fr}.product .phone{margin:0 auto}}
+.features{display:flex;flex-direction:column;gap:2px}
+.feat{border-radius:16px;border:1px solid transparent;padding:16px 20px;cursor:pointer;background:none;text-align:left;font:inherit;color:inherit;width:100%}
+.feat h3{font-size:20px;display:flex;justify-content:space-between;gap:10px;align-items:baseline}
+.feat h3 em{font-style:normal;font-size:12px;font-family:var(--body);color:var(--planned);font-variant-numeric:tabular-nums}
+.feat .more{display:none;margin-top:10px}
+.feat .more p{color:var(--muted);font-size:16px}
+.feat .more .gain{color:var(--ink);font-weight:600;margin-top:10px;font-size:15px}
+.feat .more .note{margin-top:10px}
+.feat[aria-selected="true"]{background:var(--surface);border-color:var(--line)}
+.feat[aria-selected="true"] .more{display:block}
+.feat[aria-selected="true"] h3 em{color:var(--accent-text)}
+.feat:not([aria-selected="true"]) h3{color:var(--muted)}
+.shotnav{display:flex;gap:8px;justify-content:center;margin-top:16px;min-height:32px}
+.shotnav button{border:1px solid var(--line);background:var(--surface);color:var(--muted);border-radius:999px;font:600 12px var(--body);padding:7px 12px;cursor:pointer}
+.shotnav button[aria-pressed="true"]{color:var(--accent-text);border-color:var(--accent)}
+.prodphone{--pw:min(320px,80vw)}
+.prodphone .scr img{transition:opacity .25s}
+
+/* live prototype */
+.live{display:grid;grid-template-columns:1fr auto;gap:56px;align-items:center}
+@media (max-width:860px){.live{grid-template-columns:1fr}.live .phone{margin:0 auto}}
+.livephone{--pw:340px}
+.livephone .scr{overflow:hidden;position:relative}
+.livephone iframe{width:390px;height:844px;border:0;transform:scale(calc((340px - 21.76px) / 390px));transform-origin:0 0;position:absolute;top:0;left:0}
+.livephone .scr{width:calc(340px - 21.76px);height:calc((340px - 21.76px) * 844 / 390)}
+.livephone{aspect-ratio:auto;height:auto}
+@media (max-width:400px){.livephone{--pw:300px}.livephone iframe{transform:scale(calc((300px - 19.2px)/390px))}.livephone .scr{width:calc(300px - 19.2px);height:calc((300px - 19.2px)*844/390)}}
+.checks{list-style:none;padding:0;margin:26px 0 0;display:flex;flex-direction:column;gap:10px}
+.checks li{display:flex;gap:12px;align-items:baseline}
+.checks li::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--accent);flex:none;transform:translateY(-1px)}
+.checks li.p::before{background:transparent;border:1.5px dashed var(--planned)}
+
+/* models */
+.models{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:52px}
+@media (max-width:860px){.models{grid-template-columns:1fr}}
+.model{border:1px solid var(--line);border-radius:var(--r);padding:28px;background:var(--surface);display:flex;flex-direction:column;gap:12px}
+.model .n{font-family:var(--display);font-size:14px;color:var(--accent-text);font-weight:600}
+.model p{color:var(--muted)}
+.retain{margin-top:22px;display:grid;grid-template-columns:1fr 1.3fr;gap:32px;border-radius:var(--r);padding:32px;background:var(--accent);color:var(--accent-ink)}
+.retain h3{font-size:26px}
+.retain ul{margin:0;padding:0;list-style:none;display:flex;flex-wrap:wrap;gap:8px;align-content:flex-start}
+.retain li{border:1px solid rgba(255,255,255,.35);border-radius:999px;padding:7px 14px;font-size:14px;font-weight:600}
+.retain p{opacity:.88;margin-top:12px;font-size:15px}
+@media (max-width:860px){.retain{grid-template-columns:1fr}}
+
+/* map */
+.mapbox{margin-top:48px;background:var(--surface);border:1px solid var(--line);border-radius:24px;padding:clamp(16px,3vw,32px);position:relative}
+.mapbox svg{width:100%;height:auto;display:block}
+.land{stroke:var(--line);stroke-width:.95;stroke-linecap:round;fill:none}
+:root[data-theme="dark"] .land{stroke:#332e44}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .land{stroke:#332e44}}
+.mk circle.core{fill:var(--accent)}
+.mk circle.ring{fill:none;stroke:var(--accent);stroke-width:.35;opacity:.5}
+.mk.exp circle.core{fill:var(--surface);stroke:var(--accent);stroke-width:.45}
+.mk text{font:600 2.1px var(--body);fill:var(--ink)}
+.mk text.s{font-weight:400;fill:var(--muted);font-size:1.6px}
+.arc{fill:none;stroke:var(--accent);stroke-width:.25;stroke-dasharray:.8 .8;opacity:.7}
+.legend{display:flex;gap:22px;flex-wrap:wrap;margin-top:18px;font-size:14px}
+.legend span{display:flex;gap:8px;align-items:center}
+.legend i{width:12px;height:12px;border-radius:50%;display:inline-block}
+.tiers{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:22px}
+@media (max-width:760px){.tiers{grid-template-columns:1fr}}
+.tier{padding:20px 22px;border-left:2px solid var(--accent)}
+.tier.e{border-left-style:dashed}.tier.f{border-left-color:var(--planned);border-left-style:dotted}
+.tier small{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.tier b{display:block;font-family:var(--display);font-size:22px;font-weight:600;margin-top:6px}
+.tier p{color:var(--muted);font-size:15px;margin-top:4px}
+
+/* benefits */
+.benefits{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;margin-top:52px}
+.benefit{background:var(--surface);padding:28px 24px;display:flex;flex-direction:column;gap:10px}
+.benefit .n{font-variant-numeric:tabular-nums;font-size:13px;color:var(--accent-text);font-weight:700}
+.benefit p{color:var(--muted);font-size:15px}
+.caveat{margin-top:18px;font-size:14px;color:var(--muted);display:flex;gap:10px;align-items:center}
+
+/* architecture */
+.arch{margin-top:52px;display:flex;flex-direction:column;gap:12px}
+.layer{display:grid;grid-template-columns:220px 1fr;gap:20px;align-items:center;padding:22px 24px;border-radius:var(--r);background:var(--surface);border:1px solid var(--line)}
+.layer.core{background:var(--accent-soft);border-color:transparent}
+.layer.trust{border-style:dashed}
+.layer h3{font-size:18px}
+.layer h3 small{display:block;font-family:var(--body);font-size:13px;font-weight:400;color:var(--muted);margin-top:4px;letter-spacing:0}
+.layer .items{display:flex;flex-wrap:wrap;gap:8px}
+.layer .items span{font-size:14px;font-weight:600;padding:9px 14px;border-radius:12px;background:var(--bg);border:1px solid var(--line)}
+.layer.core .items span{background:var(--surface)}
+.layer .items span.p{font-weight:500;color:var(--muted);border-style:dashed;border-color:var(--planned);background:transparent}
+.layer .items span.d::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--accent);margin-right:8px;vertical-align:1px}
+@media (max-width:760px){.layer{grid-template-columns:1fr}}
+
+/* invest + partner */
+.two{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:start}
+@media (max-width:860px){.two{grid-template-columns:1fr;gap:32px}}
+.thesis{list-style:none;margin:0;padding:0;border-top:1px solid var(--line)}
+.thesis li{padding:18px 0;border-bottom:1px solid var(--line);display:grid;grid-template-columns:40px 1fr;gap:8px}
+.thesis li em{font-style:normal;font-size:13px;color:var(--accent-text);font-weight:700;font-variant-numeric:tabular-nums;padding-top:3px}
+.thesis li b{font-weight:600;display:block}
+.thesis li span{color:var(--muted);font-size:15px}
+.cta-card{border-radius:24px;padding:clamp(28px,4vw,48px);background:var(--surface);border:1px solid var(--line);display:flex;flex-direction:column;gap:18px}
+.cta-card.dark{background:var(--bezel);color:#efedf7;border-color:transparent}
+.cta-card.dark .lede,.cta-card.dark p{color:#b7b2c9}
+.cta-card.dark .chip{background:#2a2440;color:#cbb9f7}
+.mail{display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:14px}
+.mail code{font-family:var(--body);font-weight:600}
+.copy{border:1px solid currentColor;background:transparent;color:inherit;border-radius:999px;font:600 12px var(--body);padding:6px 12px;cursor:pointer;opacity:.85}
+.pmodels{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.pmodels span{padding:14px 16px;border-radius:14px;border:1px solid #2f2a40;font-weight:600;font-size:15px}
+@media (max-width:500px){.pmodels{grid-template-columns:1fr}}
+
+/* founder */
+.founder{display:grid;grid-template-columns:auto 1fr;gap:40px;align-items:start;max-width:880px}
+.mono{width:120px;height:120px;border-radius:30px;background:var(--accent-soft);display:grid;place-items:center;font-family:var(--display);font-weight:800;font-size:15px;letter-spacing:.24em;color:var(--accent-text)}
+.founder p{font-size:19px;color:var(--muted);max-width:60ch}
+.founder p + p{margin-top:16px}
+.founder strong{color:var(--ink);font-weight:600}
+@media (max-width:640px){.founder{grid-template-columns:1fr}}
+
+footer{border-top:1px solid var(--line);padding:48px 0 64px;font-size:13px;color:var(--muted)}
+footer .wrap{display:grid;grid-template-columns:auto 1fr;gap:40px}
+footer p + p{margin-top:8px}
+@media (max-width:700px){footer .wrap{grid-template-columns:1fr}}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:999px;font-size:14px;font-weight:600;opacity:0;transition:.25s;pointer-events:none;z-index:50}
+.toast.on{opacity:1;transform:translateX(-50%)}
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="wrap">
+    <a class="logo" href="#top" aria-label="VYRA home">VYRA<span>.</span></a>
+    <ul>
+      <li><a href="#problem">Why VYRA</a></li>
+      <li><a href="#how">How it works</a></li>
+      <li><a href="#product">Product</a></li>
+      <li><a href="#opportunity">Opportunity</a></li>
+      <li><a href="#technology">Technology</a></li>
+      <li><a href="#invest">Invest</a></li>
+    </ul>
+    <div class="right">
+      <button class="theme" id="themeBtn" type="button" aria-label="Switch between light and dark theme">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+      </button>
+      <a class="btn primary" href="#partner">Partner With Us</a>
+    </div>
+  </div>
+</header>
+
+<main id="top">
+
+<!-- HERO -->
+<section class="hero">
+  <div class="wrap">
+    <div>
+      <div class="kicker"><b>AI Family Chief of Staff</b> · Prototype stage</div>
+      <div class="wordmark" aria-hidden="true">VYRA<span>.</span></div>
+      <h1>Your Family’s AI Chief of Staff.</h1>
+      <p class="lede">An intelligent layer that understands family life, anticipates what matters and helps households stay coordinated, without adding another application to manage.</p>
+      <p class="tagline"><span>Invisible Intelligence.</span><i>/</i><span>Human Control.</span></p>
+      <div class="ctas">
+        <a class="btn primary" href="#how">Explore VYRA →</a>
+        <a class="btn quiet" href="#partner">Partner With Us</a>
+      </div>
+    </div>
+    <figure class="stage" style="margin:0">
+      <div class="phone back" aria-hidden="true"><div class="scr"><img src="assets/capture-review.webp" alt="" width="780" height="1688"></div></div>
+      <div class="phone front"><div class="scr" tabindex="0" aria-label="VYRA home screen, scrollable"><img src="assets/home.webp" alt="VYRA daily briefing: one item needs attention, three upcoming family events, and a prepared winter shopping checklist" width="780" height="2116"></div></div>
+      <figcaption>Actual prototype screens · synthetic family data</figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- PROBLEM -->
+<section id="problem">
+  <div class="wrap">
+    <div class="kicker"><b>The problem</b></div>
+    <h2>Family Life Doesn’t Need Another App. It Needs Intelligence.</h2>
+    <p class="lede">Modern households already run on plenty of tools. The hard part is the mental effort of connecting them. Today, a parent is the integration layer between systems that don’t talk to each other. VYRA is designed to take on that burden.</p>
+    <div class="split">
+      <div class="panel">
+        <div class="kicker" style="margin:0">Today · fragmented</div>
+        <div class="scatter" aria-label="Disconnected household systems">
+          <span>Calendars</span><span>Messaging apps</span><span>School communications</span><span>Emails</span><span>Shopping lists</span><span>Family commitments</span><span>Household staff &amp; service providers</span><span>Personal reminders</span><span>Shared responsibilities</span>
+        </div>
+        <div class="you"><div class="dot">You</div><div><b>The parent connects everything</b><br><span class="note">Reading, remembering, cross-checking, delegating and following up by hand.</span></div></div>
+      </div>
+      <div class="panel">
+        <div class="kicker" style="margin:0"><b>With VYRA · coordinated</b></div>
+        <div class="flow">
+          <div class="src"><span>Calendars</span><span>Messages</span><span>School</span><span>Email</span><span>Shopping</span><span>Staff</span><span>Reminders</span></div>
+          <div class="arrow" aria-hidden="true">↓</div>
+          <div class="bar">VYRA · household context</div>
+          <div class="arrow" aria-hidden="true">↓</div>
+          <div class="out"><b>One thing needs your attention</b><small>Everything else is on track, prepared or waiting for your approval.</small></div>
+        </div>
+      </div>
+    </div>
+    <p class="big-quote">The challenge isn’t a lack of applications. <span>It’s the mental effort required to connect them.</span></p>
+  </div>
+</section>
+
+<!-- HOW -->
+<section id="how">
+  <div class="wrap">
+    <div class="kicker"><b>How VYRA works</b> · Illustrative walkthrough</div>
+    <h2>From Information to Intelligent Action.</h2>
+    <p class="lede">A parent receives a message about a school bake sale. Step through how VYRA turns it into a prepared plan that still waits for a person to approve every action.</p>
+
+    <div class="demo">
+      <ol class="steps" role="tablist" aria-label="VYRA workflow steps" id="steps"></ol>
+      <div class="stagebox" role="tabpanel" id="stepPanel" aria-live="polite"></div>
+    </div>
+    <p class="note" style="margin-top:16px">Designed walkthrough of the intended product behaviour, using synthetic people. The current prototype demonstrates capture, review, calendar and ownership; the context reasoning shown here is planned.</p>
+  </div>
+</section>
+
+<!-- PRODUCT -->
+<section id="product">
+  <div class="wrap">
+    <div class="kicker"><b>Product experience</b> · From the working prototype</div>
+    <h2>Intelligence Built Around Your Family.</h2>
+    <div class="product">
+      <div class="features" role="tablist" aria-label="VYRA features" id="features"></div>
+      <div>
+        <div class="phone prodphone"><div class="scr" tabindex="0" aria-label="Feature screenshot, scrollable"><img id="prodImg" src="assets/home.webp" alt="" width="780" height="2116"></div></div>
+        <div class="shotnav" id="shotnav"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- LIVE -->
+<section id="prototype">
+  <div class="wrap live">
+    <div>
+      <div class="kicker"><b>Try it</b> · Interactive prototype</div>
+      <h2>Tap through the prototype.</h2>
+      <p class="lede">This is the actual VYRA prototype, running in the page. Move the shopping trip, take over a task, ask VYRA what’s coming up, or tap + to capture something.</p>
+      <ul class="checks">
+        <li>Daily briefing, family timeline, action packs and family roles</li>
+        <li>Suggestions stay proposals until a person confirms them</li>
+        <li>Taking over a task never notifies anyone automatically</li>
+        <li class="p">Responses are scripted and extraction uses simple keyword rules. No AI model or external account is connected.</li>
+      </ul>
+      <p style="margin-top:24px"><a href="prototype.html" target="_blank" rel="noopener">Open the prototype full screen ↗</a></p>
+    </div>
+    <div class="phone livephone"><div class="scr"><iframe src="prototype.html" title="VYRA interactive prototype"></iframe></div></div>
+  </div>
+</section>
+
+<!-- COMMERCIAL -->
+<section id="opportunity">
+  <div class="wrap">
+    <div class="kicker"><b>Strategic commercial opportunity</b></div>
+    <h2>Built for Families. Designed to Scale Through Partnerships.</h2>
+    <p class="lede">VYRA is a globally owned consumer AI brand with several routes to market. Families can subscribe directly, and large consumer-service organisations can bring VYRA to the households they already serve.</p>
+    <div class="models">
+      <div class="model"><span class="n">01</span><h3>Direct to Consumer</h3><p>Families subscribe to VYRA directly.</p></div>
+      <div class="model"><span class="n">02</span><h3>B2B2C Distribution</h3><p>Telecommunications operators, banks, insurers and employee-benefit providers offer VYRA as a premium household service.</p></div>
+      <div class="model"><span class="n">03</span><h3>Regional Licensing</h3><p>Qualified partners hold defined, time-limited distribution rights for specific markets and channels.</p></div>
+    </div>
+    <div class="retain">
+      <div>
+        <h3>VYRA always keeps its identity.</h3>
+        <p>Regional partners distribute VYRA under the VYRA name. VYRA is not offered for white-label rebranding, and distribution rights do not imply ownership.</p>
+      </div>
+      <div>
+        <p style="margin:0 0 12px;opacity:1;font-weight:600">VYRA retains</p>
+        <ul><li>Its global brand</li><li>Core intellectual property</li><li>Product ownership</li><li>Technology platform</li><li>International commercial rights</li></ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MARKETS -->
+<section id="markets">
+  <div class="wrap">
+    <div class="kicker"><b>Geographic strategy</b> · Planned</div>
+    <h2>Starting where we know families best.</h2>
+    <p class="lede">VYRA is at prototype stage and is not yet commercially available in any market. The map shows the planned sequence.</p>
+    <div class="mapbox">
+      <svg viewBox="-2 -2 87.5 58" role="img" aria-labelledby="mapTitle">
+        <title id="mapTitle">Planned VYRA markets: Pakistan and the United Arab Emirates first, then Saudi Arabia, Australia and New Zealand</title>
+        <path class="land" d="M0.0 0.0h0M5.0 0.0h0M6.0 0.0h0M7.0 0.0h0M8.0 0.0h0M9.0 0.0h0M10.0 0.0h0M11.0 0.0h0M12.0 0.0h0M13.0 0.0h0M14.0 0.0h0M15.0 0.0h0M16.0 0.0h0M17.0 0.0h0M18.0 0.0h0M19.0 0.0h0M20.0 0.0h0M21.0 0.0h0M22.0 0.0h0M23.0 0.0h0M24.0 0.0h0M25.0 0.0h0M26.0 0.0h0M27.0 0.0h0M28.0 0.0h0M29.0 0.0h0M30.0 0.0h0M31.0 0.0h0M32.0 0.0h0M33.0 0.0h0M34.0 0.0h0M35.0 0.0h0M36.0 0.0h0M37.0 0.0h0M38.0 0.0h0M39.0 0.0h0M40.0 0.0h0M41.0 0.0h0M42.0 0.0h0M43.0 0.0h0M44.0 0.0h0M45.0 0.0h0M46.0 0.0h0M47.0 0.0h0M48.0 0.0h0M49.0 0.0h0M50.0 0.0h0M51.0 0.0h0M52.0 0.0h0M53.0 0.0h0M54.0 0.0h0M55.0 0.0h0M56.0 0.0h0M57.0 0.0h0M58.0 0.0h0M59.0 0.0h0M60.0 0.0h0M61.0 0.0h0M62.0 0.0h0M72.0 0.0h0M73.0 0.0h0M4.0 1.0h0M5.0 1.0h0M6.0 1.0h0M7.0 1.0h0M8.0 1.0h0M9.0 1.0h0M10.0 1.0h0M11.0 1.0h0M12.0 1.0h0M13.0 1.0h0M14.0 1.0h0M15.0 1.0h0M16.0 1.0h0M17.0 1.0h0M18.0 1.0h0M19.0 1.0h0M20.0 1.0h0M21.0 1.0h0M22.0 1.0h0M23.0 1.0h0M24.0 1.0h0M25.0 1.0h0M26.0 1.0h0M27.0 1.0h0M28.0 1.0h0M29.0 1.0h0M30.0 1.0h0M31.0 1.0h0M32.0 1.0h0M33.0 1.0h0M34.0 1.0h0M35.0 1.0h0M36.0 1.0h0M37.0 1.0h0M38.0 1.0h0M39.0 1.0h0M40.0 1.0h0M41.0 1.0h0M42.0 1.0h0M43.0 1.0h0M44.0 1.0h0M45.0 1.0h0M46.0 1.0h0M47.0 1.0h0M48.0 1.0h0M49.0 1.0h0M50.0 1.0h0M51.0 1.0h0M52.0 1.0h0M53.0 1.0h0M54.0 1.0h0M55.0 1.0h0M56.0 1.0h0M57.0 1.0h0M58.0 1.0h0M59.0 1.0h0M60.0 1.0h0M61.0 1.0h0M71.0 1.0h0M72.0 1.0h0M73.0 1.0h0M0.0 2.0h0M1.0 2.0h0M2.0 2.0h0M3.0 2.0h0M4.0 2.0h0M5.0 2.0h0M6.0 2.0h0M7.0 2.0h0M8.0 2.0h0M9.0 2.0h0M10.0 2.0h0M11.0 2.0h0M12.0 2.0h0M13.0 2.0h0M14.0 2.0h0M15.0 2.0h0M16.0 2.0h0M17.0 2.0h0M18.0 2.0h0M19.0 2.0h0M20.0 2.0h0M21.0 2.0h0M22.0 2.0h0M23.0 2.0h0M24.0 2.0h0M25.0 2.0h0M26.0 2.0h0M27.0 2.0h0M28.0 2.0h0M29.0 2.0h0M30.0 2.0h0M31.0 2.0h0M32.0 2.0h0M33.0 2.0h0M34.0 2.0h0M35.0 2.0h0M36.0 2.0h0M37.0 2.0h0M38.0 2.0h0M39.0 2.0h0M40.0 2.0h0M41.0 2.0h0M42.0 2.0h0M43.0 2.0h0M44.0 2.0h0M45.0 2.0h0M46.0 2.0h0M47.0 2.0h0M48.0 2.0h0M49.0 2.0h0M50.0 2.0h0M51.0 2.0h0M52.0 2.0h0M53.0 2.0h0M54.0 2.0h0M55.0 2.0h0M56.0 2.0h0M57.0 2.0h0M58.0 2.0h0M59.0 2.0h0M60.0 2.0h0M62.0 2.0h0M71.0 2.0h0M72.0 2.0h0M0.0 3.0h0M1.0 3.0h0M2.0 3.0h0M3.0 3.0h0M4.0 3.0h0M5.0 3.0h0M6.0 3.0h0M7.0 3.0h0M8.0 3.0h0M9.0 3.0h0M10.0 3.0h0M11.0 3.0h0M12.0 3.0h0M13.0 3.0h0M14.0 3.0h0M15.0 3.0h0M16.0 3.0h0M17.0 3.0h0M18.0 3.0h0M19.0 3.0h0M20.0 3.0h0M21.0 3.0h0M22.0 3.0h0M23.0 3.0h0M24.0 3.0h0M25.0 3.0h0M26.0 3.0h0M27.0 3.0h0M28.0 3.0h0M29.0 3.0h0M30.0 3.0h0M31.0 3.0h0M32.0 3.0h0M33.0 3.0h0M34.0 3.0h0M35.0 3.0h0M36.0 3.0h0M37.0 3.0h0M38.0 3.0h0M39.0 3.0h0M40.0 3.0h0M41.0 3.0h0M42.0 3.0h0M43.0 3.0h0M44.0 3.0h0M45.0 3.0h0M46.0 3.0h0M47.0 3.0h0M48.0 3.0h0M49.0 3.0h0M50.0 3.0h0M51.0 3.0h0M52.0 3.0h0M53.0 3.0h0M54.0 3.0h0M55.0 3.0h0M56.0 3.0h0M57.0 3.0h0M58.0 3.0h0M59.0 3.0h0M60.0 3.0h0M61.0 3.0h0M62.0 3.0h0M63.0 3.0h0M64.0 3.0h0M71.0 3.0h0M0.0 4.0h0M1.0 4.0h0M2.0 4.0h0M3.0 4.0h0M4.0 4.0h0M5.0 4.0h0M6.0 4.0h0M7.0 4.0h0M8.0 4.0h0M9.0 4.0h0M10.0 4.0h0M11.0 4.0h0M12.0 4.0h0M13.0 4.0h0M14.0 4.0h0M15.0 4.0h0M16.0 4.0h0M17.0 4.0h0M18.0 4.0h0M19.0 4.0h0M20.0 4.0h0M21.0 4.0h0M22.0 4.0h0M23.0 4.0h0M24.0 4.0h0M25.0 4.0h0M26.0 4.0h0M27.0 4.0h0M28.0 4.0h0M29.0 4.0h0M30.0 4.0h0M31.0 4.0h0M32.0 4.0h0M33.0 4.0h0M34.0 4.0h0M35.0 4.0h0M36.0 4.0h0M37.0 4.0h0M38.0 4.0h0M39.0 4.0h0M40.0 4.0h0M41.0 4.0h0M42.0 4.0h0M43.0 4.0h0M44.0 4.0h0M45.0 4.0h0M46.0 4.0h0M47.0 4.0h0M48.0 4.0h0M49.0 4.0h0M50.0 4.0h0M51.0 4.0h0M52.0 4.0h0M53.0 4.0h0M54.0 4.0h0M55.0 4.0h0M56.0 4.0h0M57.0 4.0h0M58.0 4.0h0M59.0 4.0h0M60.0 4.0h0M61.0 4.0h0M62.0 4.0h0M64.0 4.0h0M0.0 5.0h0M1.0 5.0h0M2.0 5.0h0M3.0 5.0h0M4.0 5.0h0M5.0 5.0h0M6.0 5.0h0M7.0 5.0h0M8.0 5.0h0M9.0 5.0h0M10.0 5.0h0M11.0 5.0h0M12.0 5.0h0M13.0 5.0h0M14.0 5.0h0M15.0 5.0h0M16.0 5.0h0M17.0 5.0h0M18.0 5.0h0M19.0 5.0h0M20.0 5.0h0M21.0 5.0h0M22.0 5.0h0M23.0 5.0h0M24.0 5.0h0M25.0 5.0h0M26.0 5.0h0M27.0 5.0h0M28.0 5.0h0M29.0 5.0h0M30.0 5.0h0M31.0 5.0h0M32.0 5.0h0M33.0 5.0h0M34.0 5.0h0M35.0 5.0h0M36.0 5.0h0M37.0 5.0h0M38.0 5.0h0M39.0 5.0h0M40.0 5.0h0M41.0 5.0h0M42.0 5.0h0M43.0 5.0h0M44.0 5.0h0M45.0 5.0h0M46.0 5.0h0M47.0 5.0h0M48.0 5.0h0M49.0 5.0h0M50.0 5.0h0M51.0 5.0h0M52.0 5.0h0M53.0 5.0h0M54.0 5.0h0M55.0 5.0h0M56.0 5.0h0M57.0 5.0h0M58.0 5.0h0M59.0 5.0h0M60.0 5.0h0M61.0 5.0h0M62.0 5.0h0M0.0 6.0h0M1.0 6.0h0M2.0 6.0h0M3.0 6.0h0M4.0 6.0h0M5.0 6.0h0M6.0 6.0h0M7.0 6.0h0M12.0 6.0h0M13.0 6.0h0M14.0 6.0h0M15.0 6.0h0M16.0 6.0h0M17.0 6.0h0M18.0 6.0h0M19.0 6.0h0M20.0 6.0h0M21.0 6.0h0M22.0 6.0h0M23.0 6.0h0M24.0 6.0h0M25.0 6.0h0M26.0 6.0h0M27.0 6.0h0M28.0 6.0h0M29.0 6.0h0M30.0 6.0h0M31.0 6.0h0M32.0 6.0h0M33.0 6.0h0M34.0 6.0h0M35.0 6.0h0M36.0 6.0h0M37.0 6.0h0M38.0 6.0h0M39.0 6.0h0M40.0 6.0h0M41.0 6.0h0M42.0 6.0h0M43.0 6.0h0M44.0 6.0h0M45.0 6.0h0M46.0 6.0h0M47.0 6.0h0M48.0 6.0h0M49.0 6.0h0M50.0 6.0h0M51.0 6.0h0M52.0 6.0h0M53.0 6.0h0M54.0 6.0h0M55.0 6.0h0M56.0 6.0h0M57.0 6.0h0M58.0 6.0h0M59.0 6.0h0M60.0 6.0h0M61.0 6.0h0M1.0 7.0h0M2.0 7.0h0M3.0 7.0h0M4.0 7.0h0M5.0 7.0h0M6.0 7.0h0M13.0 7.0h0M14.0 7.0h0M15.0 7.0h0M16.0 7.0h0M17.0 7.0h0M18.0 7.0h0M19.0 7.0h0M20.0 7.0h0M21.0 7.0h0M22.0 7.0h0M23.0 7.0h0M24.0 7.0h0M25.0 7.0h0M26.0 7.0h0M27.0 7.0h0M28.0 7.0h0M29.0 7.0h0M30.0 7.0h0M31.0 7.0h0M32.0 7.0h0M33.0 7.0h0M34.0 7.0h0M35.0 7.0h0M36.0 7.0h0M37.0 7.0h0M38.0 7.0h0M39.0 7.0h0M40.0 7.0h0M41.0 7.0h0M42.0 7.0h0M43.0 7.0h0M44.0 7.0h0M45.0 7.0h0M46.0 7.0h0M47.0 7.0h0M48.0 7.0h0M49.0 7.0h0M50.0 7.0h0M51.0 7.0h0M52.0 7.0h0M53.0 7.0h0M54.0 7.0h0M55.0 7.0h0M56.0 7.0h0M57.0 7.0h0M58.0 7.0h0M59.0 7.0h0M60.0 7.0h0M64.0 7.0h0M65.0 7.0h0M3.0 8.0h0M4.0 8.0h0M5.0 8.0h0M6.0 8.0h0M10.0 8.0h0M14.0 8.0h0M15.0 8.0h0M16.0 8.0h0M17.0 8.0h0M18.0 8.0h0M19.0 8.0h0M20.0 8.0h0M21.0 8.0h0M22.0 8.0h0M23.0 8.0h0M24.0 8.0h0M25.0 8.0h0M26.0 8.0h0M27.0 8.0h0M28.0 8.0h0M29.0 8.0h0M30.0 8.0h0M31.0 8.0h0M32.0 8.0h0M33.0 8.0h0M34.0 8.0h0M35.0 8.0h0M36.0 8.0h0M37.0 8.0h0M38.0 8.0h0M39.0 8.0h0M40.0 8.0h0M41.0 8.0h0M42.0 8.0h0M43.0 8.0h0M44.0 8.0h0M45.0 8.0h0M46.0 8.0h0M47.0 8.0h0M48.0 8.0h0M49.0 8.0h0M50.0 8.0h0M51.0 8.0h0M52.0 8.0h0M53.0 8.0h0M54.0 8.0h0M55.0 8.0h0M56.0 8.0h0M57.0 8.0h0M3.0 9.0h0M6.0 9.0h0M7.0 9.0h0M8.0 9.0h0M9.0 9.0h0M10.0 9.0h0M11.0 9.0h0M12.0 9.0h0M13.0 9.0h0M14.0 9.0h0M15.0 9.0h0M16.0 9.0h0M17.0 9.0h0M18.0 9.0h0M19.0 9.0h0M20.0 9.0h0M21.0 9.0h0M22.0 9.0h0M23.0 9.0h0M24.0 9.0h0M25.0 9.0h0M26.0 9.0h0M27.0 9.0h0M28.0 9.0h0M29.0 9.0h0M30.0 9.0h0M31.0 9.0h0M32.0 9.0h0M33.0 9.0h0M34.0 9.0h0M35.0 9.0h0M36.0 9.0h0M37.0 9.0h0M38.0 9.0h0M39.0 9.0h0M40.0 9.0h0M41.0 9.0h0M42.0 9.0h0M43.0 9.0h0M44.0 9.0h0M45.0 9.0h0M46.0 9.0h0M47.0 9.0h0M48.0 9.0h0M49.0 9.0h0M50.0 9.0h0M51.0 9.0h0M52.0 9.0h0M54.0 9.0h0M55.0 9.0h0M56.0 9.0h0M63.0 9.0h0M0.0 10.0h0M4.0 10.0h0M7.0 10.0h0M8.0 10.0h0M9.0 10.0h0M10.0 10.0h0M11.0 10.0h0M12.0 10.0h0M13.0 10.0h0M14.0 10.0h0M15.0 10.0h0M16.0 10.0h0M17.0 10.0h0M18.0 10.0h0M19.0 10.0h0M20.0 10.0h0M21.0 10.0h0M22.0 10.0h0M23.0 10.0h0M24.0 10.0h0M25.0 10.0h0M26.0 10.0h0M27.0 10.0h0M28.0 10.0h0M29.0 10.0h0M30.0 10.0h0M31.0 10.0h0M32.0 10.0h0M33.0 10.0h0M34.0 10.0h0M35.0 10.0h0M36.0 10.0h0M37.0 10.0h0M38.0 10.0h0M39.0 10.0h0M40.0 10.0h0M41.0 10.0h0M42.0 10.0h0M43.0 10.0h0M44.0 10.0h0M45.0 10.0h0M46.0 10.0h0M47.0 10.0h0M48.0 10.0h0M49.0 10.0h0M50.0 10.0h0M51.0 10.0h0M52.0 10.0h0M56.0 10.0h0M11.0 11.0h0M12.0 11.0h0M13.0 11.0h0M14.0 11.0h0M15.0 11.0h0M16.0 11.0h0M17.0 11.0h0M18.0 11.0h0M19.0 11.0h0M20.0 11.0h0M21.0 11.0h0M22.0 11.0h0M23.0 11.0h0M24.0 11.0h0M25.0 11.0h0M26.0 11.0h0M27.0 11.0h0M28.0 11.0h0M29.0 11.0h0M30.0 11.0h0M31.0 11.0h0M32.0 11.0h0M33.0 11.0h0M34.0 11.0h0M35.0 11.0h0M36.0 11.0h0M37.0 11.0h0M38.0 11.0h0M39.0 11.0h0M40.0 11.0h0M41.0 11.0h0M42.0 11.0h0M43.0 11.0h0M44.0 11.0h0M45.0 11.0h0M46.0 11.0h0M47.0 11.0h0M48.0 11.0h0M49.0 11.0h0M50.0 11.0h0M51.0 11.0h0M52.0 11.0h0M56.0 11.0h0M57.0 11.0h0M61.0 11.0h0M62.0 11.0h0M11.0 12.0h0M12.0 12.0h0M13.0 12.0h0M14.0 12.0h0M15.0 12.0h0M16.0 12.0h0M17.0 12.0h0M18.0 12.0h0M19.0 12.0h0M20.0 12.0h0M21.0 12.0h0M22.0 12.0h0M23.0 12.0h0M24.0 12.0h0M25.0 12.0h0M26.0 12.0h0M27.0 12.0h0M28.0 12.0h0M29.0 12.0h0M30.0 12.0h0M31.0 12.0h0M32.0 12.0h0M33.0 12.0h0M34.0 12.0h0M35.0 12.0h0M36.0 12.0h0M37.0 12.0h0M38.0 12.0h0M39.0 12.0h0M40.0 12.0h0M41.0 12.0h0M42.0 12.0h0M43.0 12.0h0M44.0 12.0h0M45.0 12.0h0M46.0 12.0h0M47.0 12.0h0M48.0 12.0h0M49.0 12.0h0M50.0 12.0h0M51.0 12.0h0M52.0 12.0h0M59.0 12.0h0M0.0 13.0h0M3.0 13.0h0M4.0 13.0h0M10.0 13.0h0M11.0 13.0h0M12.0 13.0h0M13.0 13.0h0M14.0 13.0h0M15.0 13.0h0M16.0 13.0h0M17.0 13.0h0M18.0 13.0h0M19.0 13.0h0M20.0 13.0h0M21.0 13.0h0M22.0 13.0h0M23.0 13.0h0M24.0 13.0h0M25.0 13.0h0M26.0 13.0h0M27.0 13.0h0M28.0 13.0h0M29.0 13.0h0M30.0 13.0h0M31.0 13.0h0M32.0 13.0h0M33.0 13.0h0M34.0 13.0h0M35.0 13.0h0M36.0 13.0h0M37.0 13.0h0M38.0 13.0h0M39.0 13.0h0M40.0 13.0h0M41.0 13.0h0M42.0 13.0h0M43.0 13.0h0M44.0 13.0h0M45.0 13.0h0M46.0 13.0h0M47.0 13.0h0M48.0 13.0h0M49.0 13.0h0M50.0 13.0h0M51.0 13.0h0M52.0 13.0h0M53.0 13.0h0M58.0 13.0h0M0.0 14.0h0M1.0 14.0h0M2.0 14.0h0M3.0 14.0h0M4.0 14.0h0M5.0 14.0h0M6.0 14.0h0M7.0 14.0h0M8.0 14.0h0M9.0 14.0h0M10.0 14.0h0M11.0 14.0h0M12.0 14.0h0M13.0 14.0h0M14.0 14.0h0M15.0 14.0h0M16.0 14.0h0M18.0 14.0h0M19.0 14.0h0M20.0 14.0h0M21.0 14.0h0M22.0 14.0h0M23.0 14.0h0M24.0 14.0h0M25.0 14.0h0M26.0 14.0h0M27.0 14.0h0M28.0 14.0h0M29.0 14.0h0M30.0 14.0h0M31.0 14.0h0M32.0 14.0h0M33.0 14.0h0M34.0 14.0h0M35.0 14.0h0M36.0 14.0h0M37.0 14.0h0M38.0 14.0h0M39.0 14.0h0M40.0 14.0h0M41.0 14.0h0M42.0 14.0h0M43.0 14.0h0M44.0 14.0h0M45.0 14.0h0M46.0 14.0h0M47.0 14.0h0M48.0 14.0h0M49.0 14.0h0M50.0 14.0h0M51.0 14.0h0M52.0 14.0h0M53.0 14.0h0M0.0 15.0h0M1.0 15.0h0M2.0 15.0h0M3.0 15.0h0M4.0 15.0h0M5.0 15.0h0M6.0 15.0h0M7.0 15.0h0M8.0 15.0h0M9.0 15.0h0M11.0 15.0h0M12.0 15.0h0M13.0 15.0h0M14.0 15.0h0M15.0 15.0h0M16.0 15.0h0M19.0 15.0h0M20.0 15.0h0M21.0 15.0h0M22.0 15.0h0M23.0 15.0h0M24.0 15.0h0M25.0 15.0h0M26.0 15.0h0M27.0 15.0h0M28.0 15.0h0M29.0 15.0h0M30.0 15.0h0M31.0 15.0h0M32.0 15.0h0M33.0 15.0h0M34.0 15.0h0M35.0 15.0h0M36.0 15.0h0M37.0 15.0h0M38.0 15.0h0M39.0 15.0h0M40.0 15.0h0M41.0 15.0h0M42.0 15.0h0M43.0 15.0h0M44.0 15.0h0M45.0 15.0h0M46.0 15.0h0M47.0 15.0h0M48.0 15.0h0M49.0 15.0h0M50.0 15.0h0M51.0 15.0h0M52.0 15.0h0M0.0 16.0h0M1.0 16.0h0M2.0 16.0h0M3.0 16.0h0M4.0 16.0h0M5.0 16.0h0M6.0 16.0h0M7.0 16.0h0M8.0 16.0h0M9.0 16.0h0M11.0 16.0h0M12.0 16.0h0M13.0 16.0h0M14.0 16.0h0M15.0 16.0h0M16.0 16.0h0M17.0 16.0h0M22.0 16.0h0M23.0 16.0h0M24.0 16.0h0M25.0 16.0h0M26.0 16.0h0M27.0 16.0h0M28.0 16.0h0M29.0 16.0h0M30.0 16.0h0M31.0 16.0h0M32.0 16.0h0M33.0 16.0h0M34.0 16.0h0M35.0 16.0h0M36.0 16.0h0M37.0 16.0h0M38.0 16.0h0M39.0 16.0h0M40.0 16.0h0M41.0 16.0h0M42.0 16.0h0M43.0 16.0h0M44.0 16.0h0M45.0 16.0h0M46.0 16.0h0M47.0 16.0h0M48.0 16.0h0M49.0 16.0h0M50.0 16.0h0M51.0 16.0h0M52.0 16.0h0M0.0 17.0h0M1.0 17.0h0M2.0 17.0h0M3.0 17.0h0M4.0 17.0h0M5.0 17.0h0M6.0 17.0h0M7.0 17.0h0M8.0 17.0h0M9.0 17.0h0M10.0 17.0h0M12.0 17.0h0M13.0 17.0h0M14.0 17.0h0M15.0 17.0h0M16.0 17.0h0M17.0 17.0h0M18.0 17.0h0M19.0 17.0h0M20.0 17.0h0M21.0 17.0h0M27.0 17.0h0M28.0 17.0h0M29.0 17.0h0M30.0 17.0h0M31.0 17.0h0M32.0 17.0h0M33.0 17.0h0M34.0 17.0h0M35.0 17.0h0M36.0 17.0h0M37.0 17.0h0M38.0 17.0h0M39.0 17.0h0M40.0 17.0h0M41.0 17.0h0M42.0 17.0h0M43.0 17.0h0M44.0 17.0h0M45.0 17.0h0M46.0 17.0h0M47.0 17.0h0M48.0 17.0h0M49.0 17.0h0M50.0 17.0h0M51.0 17.0h0M53.0 17.0h0M0.0 18.0h0M1.0 18.0h0M2.0 18.0h0M3.0 18.0h0M4.0 18.0h0M5.0 18.0h0M6.0 18.0h0M7.0 18.0h0M8.0 18.0h0M9.0 18.0h0M10.0 18.0h0M13.0 18.0h0M14.0 18.0h0M15.0 18.0h0M16.0 18.0h0M17.0 18.0h0M18.0 18.0h0M19.0 18.0h0M20.0 18.0h0M21.0 18.0h0M22.0 18.0h0M28.0 18.0h0M29.0 18.0h0M30.0 18.0h0M31.0 18.0h0M32.0 18.0h0M33.0 18.0h0M34.0 18.0h0M35.0 18.0h0M36.0 18.0h0M37.0 18.0h0M39.0 18.0h0M40.0 18.0h0M41.0 18.0h0M42.0 18.0h0M43.0 18.0h0M44.0 18.0h0M45.0 18.0h0M46.0 18.0h0M47.0 18.0h0M48.0 18.0h0M49.0 18.0h0M0.0 19.0h0M1.0 19.0h0M2.0 19.0h0M3.0 19.0h0M4.0 19.0h0M5.0 19.0h0M6.0 19.0h0M7.0 19.0h0M8.0 19.0h0M9.0 19.0h0M10.0 19.0h0M11.0 19.0h0M13.0 19.0h0M14.0 19.0h0M15.0 19.0h0M16.0 19.0h0M17.0 19.0h0M18.0 19.0h0M19.0 19.0h0M20.0 19.0h0M21.0 19.0h0M29.0 19.0h0M30.0 19.0h0M31.0 19.0h0M32.0 19.0h0M33.0 19.0h0M34.0 19.0h0M35.0 19.0h0M40.0 19.0h0M41.0 19.0h0M42.0 19.0h0M43.0 19.0h0M44.0 19.0h0M45.0 19.0h0M0.0 20.0h0M1.0 20.0h0M2.0 20.0h0M3.0 20.0h0M4.0 20.0h0M5.0 20.0h0M6.0 20.0h0M7.0 20.0h0M8.0 20.0h0M9.0 20.0h0M10.0 20.0h0M11.0 20.0h0M14.0 20.0h0M15.0 20.0h0M16.0 20.0h0M17.0 20.0h0M18.0 20.0h0M19.0 20.0h0M20.0 20.0h0M30.0 20.0h0M31.0 20.0h0M32.0 20.0h0M33.0 20.0h0M34.0 20.0h0M40.0 20.0h0M41.0 20.0h0M42.0 20.0h0M43.0 20.0h0M44.0 20.0h0M45.0 20.0h0M53.0 20.0h0M0.0 21.0h0M1.0 21.0h0M2.0 21.0h0M3.0 21.0h0M4.0 21.0h0M5.0 21.0h0M6.0 21.0h0M7.0 21.0h0M8.0 21.0h0M9.0 21.0h0M10.0 21.0h0M11.0 21.0h0M12.0 21.0h0M14.0 21.0h0M15.0 21.0h0M16.0 21.0h0M17.0 21.0h0M18.0 21.0h0M30.0 21.0h0M31.0 21.0h0M32.0 21.0h0M33.0 21.0h0M40.0 21.0h0M42.0 21.0h0M43.0 21.0h0M44.0 21.0h0M45.0 21.0h0M46.0 21.0h0M53.0 21.0h0M0.0 22.0h0M1.0 22.0h0M2.0 22.0h0M3.0 22.0h0M4.0 22.0h0M5.0 22.0h0M6.0 22.0h0M7.0 22.0h0M8.0 22.0h0M9.0 22.0h0M10.0 22.0h0M11.0 22.0h0M12.0 22.0h0M13.0 22.0h0M15.0 22.0h0M16.0 22.0h0M30.0 22.0h0M31.0 22.0h0M32.0 22.0h0M42.0 22.0h0M43.0 22.0h0M44.0 22.0h0M45.0 22.0h0M46.0 22.0h0M47.0 22.0h0M53.0 22.0h0M54.0 22.0h0M0.0 23.0h0M1.0 23.0h0M2.0 23.0h0M3.0 23.0h0M4.0 23.0h0M5.0 23.0h0M6.0 23.0h0M7.0 23.0h0M8.0 23.0h0M9.0 23.0h0M10.0 23.0h0M11.0 23.0h0M12.0 23.0h0M13.0 23.0h0M14.0 23.0h0M31.0 23.0h0M32.0 23.0h0M39.0 23.0h0M42.0 23.0h0M44.0 23.0h0M45.0 23.0h0M46.0 23.0h0M47.0 23.0h0M55.0 23.0h0M0.0 24.0h0M1.0 24.0h0M2.0 24.0h0M3.0 24.0h0M4.0 24.0h0M5.0 24.0h0M6.0 24.0h0M7.0 24.0h0M8.0 24.0h0M9.0 24.0h0M10.0 24.0h0M11.0 24.0h0M12.0 24.0h0M13.0 24.0h0M14.0 24.0h0M15.0 24.0h0M16.0 24.0h0M17.0 24.0h0M31.0 24.0h0M32.0 24.0h0M42.0 24.0h0M52.0 24.0h0M54.0 24.0h0M0.0 25.0h0M1.0 25.0h0M2.0 25.0h0M3.0 25.0h0M4.0 25.0h0M5.0 25.0h0M6.0 25.0h0M7.0 25.0h0M8.0 25.0h0M9.0 25.0h0M10.0 25.0h0M11.0 25.0h0M12.0 25.0h0M13.0 25.0h0M14.0 25.0h0M15.0 25.0h0M16.0 25.0h0M17.0 25.0h0M33.0 25.0h0M42.0 25.0h0M51.0 25.0h0M54.0 25.0h0M55.0 25.0h0M0.0 26.0h0M1.0 26.0h0M2.0 26.0h0M3.0 26.0h0M4.0 26.0h0M5.0 26.0h0M6.0 26.0h0M7.0 26.0h0M8.0 26.0h0M9.0 26.0h0M10.0 26.0h0M11.0 26.0h0M12.0 26.0h0M13.0 26.0h0M14.0 26.0h0M15.0 26.0h0M16.0 26.0h0M43.0 26.0h0M51.0 26.0h0M53.0 26.0h0M55.0 26.0h0M0.0 27.0h0M1.0 27.0h0M2.0 27.0h0M3.0 27.0h0M4.0 27.0h0M5.0 27.0h0M6.0 27.0h0M7.0 27.0h0M8.0 27.0h0M9.0 27.0h0M10.0 27.0h0M11.0 27.0h0M12.0 27.0h0M13.0 27.0h0M14.0 27.0h0M15.0 27.0h0M16.0 27.0h0M41.0 27.0h0M43.0 27.0h0M44.0 27.0h0M50.0 27.0h0M51.0 27.0h0M0.0 28.0h0M1.0 28.0h0M2.0 28.0h0M3.0 28.0h0M4.0 28.0h0M5.0 28.0h0M6.0 28.0h0M7.0 28.0h0M8.0 28.0h0M9.0 28.0h0M10.0 28.0h0M11.0 28.0h0M12.0 28.0h0M13.0 28.0h0M14.0 28.0h0M15.0 28.0h0M42.0 28.0h0M43.0 28.0h0M44.0 28.0h0M49.0 28.0h0M50.0 28.0h0M51.0 28.0h0M0.0 29.0h0M1.0 29.0h0M2.0 29.0h0M3.0 29.0h0M4.0 29.0h0M5.0 29.0h0M6.0 29.0h0M7.0 29.0h0M8.0 29.0h0M9.0 29.0h0M10.0 29.0h0M11.0 29.0h0M12.0 29.0h0M13.0 29.0h0M43.0 29.0h0M44.0 29.0h0M48.0 29.0h0M49.0 29.0h0M50.0 29.0h0M51.0 29.0h0M0.0 30.0h0M1.0 30.0h0M2.0 30.0h0M3.0 30.0h0M4.0 30.0h0M5.0 30.0h0M6.0 30.0h0M7.0 30.0h0M8.0 30.0h0M9.0 30.0h0M10.0 30.0h0M11.0 30.0h0M12.0 30.0h0M13.0 30.0h0M43.0 30.0h0M44.0 30.0h0M48.0 30.0h0M49.0 30.0h0M50.0 30.0h0M53.0 30.0h0M59.0 30.0h0M62.0 30.0h0M66.0 30.0h0M0.0 31.0h0M1.0 31.0h0M2.0 31.0h0M3.0 31.0h0M4.0 31.0h0M5.0 31.0h0M6.0 31.0h0M7.0 31.0h0M8.0 31.0h0M9.0 31.0h0M10.0 31.0h0M11.0 31.0h0M12.0 31.0h0M44.0 31.0h0M45.0 31.0h0M50.0 31.0h0M54.0 31.0h0M59.0 31.0h0M60.0 31.0h0M61.0 31.0h0M62.0 31.0h0M63.0 31.0h0M64.0 31.0h0M0.0 32.0h0M1.0 32.0h0M2.0 32.0h0M3.0 32.0h0M4.0 32.0h0M5.0 32.0h0M6.0 32.0h0M7.0 32.0h0M8.0 32.0h0M9.0 32.0h0M10.0 32.0h0M11.0 32.0h0M46.0 32.0h0M62.0 32.0h0M63.0 32.0h0M64.0 32.0h0M65.0 32.0h0M66.0 32.0h0M67.0 32.0h0M68.0 32.0h0M70.0 32.0h0M0.0 33.0h0M1.0 33.0h0M2.0 33.0h0M3.0 33.0h0M4.0 33.0h0M5.0 33.0h0M6.0 33.0h0M7.0 33.0h0M8.0 33.0h0M9.0 33.0h0M10.0 33.0h0M11.0 33.0h0M12.0 33.0h0M48.0 33.0h0M49.0 33.0h0M62.0 33.0h0M63.0 33.0h0M64.0 33.0h0M66.0 33.0h0M71.0 33.0h0M72.0 33.0h0M0.0 34.0h0M1.0 34.0h0M2.0 34.0h0M3.0 34.0h0M4.0 34.0h0M5.0 34.0h0M6.0 34.0h0M7.0 34.0h0M8.0 34.0h0M9.0 34.0h0M10.0 34.0h0M11.0 34.0h0M12.0 34.0h0M67.0 34.0h0M68.0 34.0h0M0.0 35.0h0M1.0 35.0h0M2.0 35.0h0M3.0 35.0h0M4.0 35.0h0M5.0 35.0h0M6.0 35.0h0M7.0 35.0h0M8.0 35.0h0M9.0 35.0h0M10.0 35.0h0M11.0 35.0h0M12.0 35.0h0M59.0 35.0h0M64.0 35.0h0M0.0 36.0h0M1.0 36.0h0M2.0 36.0h0M3.0 36.0h0M4.0 36.0h0M5.0 36.0h0M6.0 36.0h0M7.0 36.0h0M8.0 36.0h0M9.0 36.0h0M10.0 36.0h0M11.0 36.0h0M12.0 36.0h0M17.0 36.0h0M56.0 36.0h0M58.0 36.0h0M59.0 36.0h0M60.0 36.0h0M64.0 36.0h0M0.0 37.0h0M1.0 37.0h0M2.0 37.0h0M3.0 37.0h0M4.0 37.0h0M5.0 37.0h0M6.0 37.0h0M7.0 37.0h0M8.0 37.0h0M9.0 37.0h0M10.0 37.0h0M11.0 37.0h0M12.0 37.0h0M16.0 37.0h0M17.0 37.0h0M55.0 37.0h0M56.0 37.0h0M57.0 37.0h0M58.0 37.0h0M59.0 37.0h0M60.0 37.0h0M61.0 37.0h0M64.0 37.0h0M65.0 37.0h0M0.0 38.0h0M1.0 38.0h0M2.0 38.0h0M3.0 38.0h0M4.0 38.0h0M5.0 38.0h0M6.0 38.0h0M7.0 38.0h0M8.0 38.0h0M9.0 38.0h0M10.0 38.0h0M11.0 38.0h0M15.0 38.0h0M16.0 38.0h0M17.0 38.0h0M54.0 38.0h0M55.0 38.0h0M56.0 38.0h0M57.0 38.0h0M58.0 38.0h0M59.0 38.0h0M60.0 38.0h0M61.0 38.0h0M62.0 38.0h0M63.0 38.0h0M64.0 38.0h0M65.0 38.0h0M0.0 39.0h0M1.0 39.0h0M2.0 39.0h0M3.0 39.0h0M4.0 39.0h0M5.0 39.0h0M6.0 39.0h0M7.0 39.0h0M8.0 39.0h0M9.0 39.0h0M15.0 39.0h0M16.0 39.0h0M53.0 39.0h0M54.0 39.0h0M55.0 39.0h0M56.0 39.0h0M57.0 39.0h0M58.0 39.0h0M59.0 39.0h0M60.0 39.0h0M61.0 39.0h0M62.0 39.0h0M63.0 39.0h0M64.0 39.0h0M65.0 39.0h0M66.0 39.0h0M0.0 40.0h0M1.0 40.0h0M2.0 40.0h0M3.0 40.0h0M4.0 40.0h0M5.0 40.0h0M6.0 40.0h0M7.0 40.0h0M8.0 40.0h0M9.0 40.0h0M10.0 40.0h0M15.0 40.0h0M16.0 40.0h0M50.0 40.0h0M51.0 40.0h0M52.0 40.0h0M53.0 40.0h0M54.0 40.0h0M55.0 40.0h0M56.0 40.0h0M57.0 40.0h0M58.0 40.0h0M59.0 40.0h0M60.0 40.0h0M61.0 40.0h0M62.0 40.0h0M63.0 40.0h0M64.0 40.0h0M65.0 40.0h0M66.0 40.0h0M67.0 40.0h0M0.0 41.0h0M1.0 41.0h0M2.0 41.0h0M3.0 41.0h0M4.0 41.0h0M5.0 41.0h0M6.0 41.0h0M7.0 41.0h0M8.0 41.0h0M9.0 41.0h0M10.0 41.0h0M15.0 41.0h0M16.0 41.0h0M50.0 41.0h0M51.0 41.0h0M52.0 41.0h0M53.0 41.0h0M54.0 41.0h0M55.0 41.0h0M56.0 41.0h0M57.0 41.0h0M58.0 41.0h0M59.0 41.0h0M60.0 41.0h0M61.0 41.0h0M62.0 41.0h0M63.0 41.0h0M64.0 41.0h0M65.0 41.0h0M66.0 41.0h0M67.0 41.0h0M68.0 41.0h0M0.0 42.0h0M1.0 42.0h0M2.0 42.0h0M3.0 42.0h0M4.0 42.0h0M5.0 42.0h0M6.0 42.0h0M7.0 42.0h0M8.0 42.0h0M50.0 42.0h0M51.0 42.0h0M52.0 42.0h0M53.0 42.0h0M54.0 42.0h0M55.0 42.0h0M56.0 42.0h0M57.0 42.0h0M58.0 42.0h0M59.0 42.0h0M60.0 42.0h0M61.0 42.0h0M62.0 42.0h0M63.0 42.0h0M64.0 42.0h0M65.0 42.0h0M66.0 42.0h0M67.0 42.0h0M68.0 42.0h0M69.0 42.0h0M1.0 43.0h0M2.0 43.0h0M3.0 43.0h0M4.0 43.0h0M5.0 43.0h0M6.0 43.0h0M7.0 43.0h0M8.0 43.0h0M50.0 43.0h0M51.0 43.0h0M52.0 43.0h0M53.0 43.0h0M54.0 43.0h0M55.0 43.0h0M56.0 43.0h0M57.0 43.0h0M58.0 43.0h0M59.0 43.0h0M60.0 43.0h0M61.0 43.0h0M62.0 43.0h0M63.0 43.0h0M64.0 43.0h0M65.0 43.0h0M66.0 43.0h0M67.0 43.0h0M68.0 43.0h0M69.0 43.0h0M2.0 44.0h0M3.0 44.0h0M4.0 44.0h0M5.0 44.0h0M6.0 44.0h0M7.0 44.0h0M50.0 44.0h0M51.0 44.0h0M52.0 44.0h0M53.0 44.0h0M54.0 44.0h0M55.0 44.0h0M56.0 44.0h0M57.0 44.0h0M58.0 44.0h0M59.0 44.0h0M60.0 44.0h0M61.0 44.0h0M62.0 44.0h0M63.0 44.0h0M64.0 44.0h0M65.0 44.0h0M66.0 44.0h0M67.0 44.0h0M68.0 44.0h0M69.0 44.0h0M2.0 45.0h0M3.0 45.0h0M4.0 45.0h0M5.0 45.0h0M6.0 45.0h0M7.0 45.0h0M51.0 45.0h0M52.0 45.0h0M53.0 45.0h0M54.0 45.0h0M55.0 45.0h0M56.0 45.0h0M59.0 45.0h0M60.0 45.0h0M61.0 45.0h0M62.0 45.0h0M63.0 45.0h0M64.0 45.0h0M65.0 45.0h0M66.0 45.0h0M67.0 45.0h0M68.0 45.0h0M2.0 46.0h0M3.0 46.0h0M4.0 46.0h0M50.0 46.0h0M51.0 46.0h0M52.0 46.0h0M62.0 46.0h0M63.0 46.0h0M64.0 46.0h0M65.0 46.0h0M66.0 46.0h0M67.0 46.0h0M68.0 46.0h0M61.0 47.0h0M63.0 47.0h0M64.0 47.0h0M65.0 47.0h0M66.0 47.0h0M67.0 47.0h0M63.0 48.0h0M64.0 48.0h0M66.0 48.0h0M80.0 48.0h0M81.0 48.0h0M66.0 50.0h0M79.0 50.0h0M77.0 51.0h0M78.0 51.0h0M76.0 52.0h0M77.0 52.0h0"/>
+        <path class="arc" d="M27.1 13.8 Q 45 18 59.5 41.8"/>
+        <path class="arc" d="M27.1 13.8 Q 55 22 79.8 49.5"/>
+        <path class="arc" d="M19.7 16.8 Q 17 15.6 15 17"/>
+        <g class="mk"><circle class="ring" cx="27.1" cy="13.8" r="2"/><circle class="core" cx="27.1" cy="13.8" r=".9"/><text x="29.4" y="13.4">Pakistan</text><text class="s" x="29.4" y="15.4">Initial</text></g>
+        <g class="mk"><circle class="ring" cx="19.7" cy="16.8" r="2"/><circle class="core" cx="19.7" cy="16.8" r=".9"/><text x="18.6" y="22" text-anchor="middle">UAE</text><text class="s" x="18.6" y="24">Initial</text></g>
+        <g class="mk exp"><circle class="core" cx="15" cy="17" r=".8"/><text x="11.5" y="12.8" text-anchor="middle">Saudi Arabia</text><text class="s" x="11.5" y="14.6">Expansion</text></g>
+        <g class="mk exp"><circle class="core" cx="59.5" cy="41.8" r=".8"/><text x="61.3" y="41.4">Australia</text><text class="s" x="61.3" y="43.4">Expansion</text></g>
+        <g class="mk exp"><circle class="core" cx="79.8" cy="49.5" r=".8"/><text x="78.6" y="53.6" text-anchor="end">New Zealand</text><text class="s" x="78.6" y="55.4" text-anchor="end">Expansion</text></g>
+      </svg>
+      <div class="legend">
+        <span><i style="background:var(--accent)"></i>Planned initial markets</span>
+        <span><i style="border:1.5px solid var(--accent)"></i>Planned expansion markets</span>
+        <span class="note">No market is commercially live yet.</span>
+      </div>
+    </div>
+    <div class="tiers">
+      <div class="tier"><small>Initial · planned</small><b>Pakistan · UAE</b><p>First markets for launch and validation with families.</p></div>
+      <div class="tier e"><small>Expansion · planned</small><b>New Zealand · Australia · Saudi Arabia</b><p>Next markets once the product is validated.</p></div>
+      <div class="tier f"><small>Future</small><b>Asia · Middle East · beyond</b><p>Selected markets, typically through regional distribution partners.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- PARTNERS CARE -->
+<section id="partners">
+  <div class="wrap">
+    <div class="kicker"><b>For telecom operators &amp; consumer-service providers</b></div>
+    <h2>A New Layer of Value for Connected Households.</h2>
+    <div class="benefits">
+      <div class="benefit"><span class="n">01</span><h3>New revenue opportunities</h3><p>Premium family subscriptions and bundled digital services.</p></div>
+      <div class="benefit"><span class="n">02</span><h3>Stronger customer engagement</h3><p>A product designed for recurring, everyday household usefulness.</p></div>
+      <div class="benefit"><span class="n">03</span><h3>Product differentiation</h3><p>A distinctive AI-powered family service, not another generic bundle.</p></div>
+      <div class="benefit"><span class="n">04</span><h3>Household-level relationships</h3><p>Potential engagement beyond the individual subscriber, across the whole family.</p></div>
+      <div class="benefit"><span class="n">05</span><h3>Faster time to market</h3><p>Access an emerging family intelligence platform without building the whole capability internally.</p></div>
+    </div>
+    <p class="caveat"><span class="chip planned">Potential</span>These are anticipated benefits that each partnership would validate commercially. They are not measured outcomes.</p>
+  </div>
+</section>
+
+<!-- TECHNOLOGY -->
+<section id="technology">
+  <div class="wrap">
+    <div class="kicker"><b>The technology advantage</b> · Target architecture</div>
+    <h2>One Intelligence Layer. An Entire Household in Context.</h2>
+    <p class="lede">Every experience draws on the same understanding of the household: who is involved, what is coming, who owns what and what each person is allowed to see.</p>
+    <div class="legend" style="margin-top:28px"><span><i style="background:var(--accent)"></i>Demonstrated in the prototype</span><span><i style="border:1.5px dashed var(--planned)"></i>Planned</span></div>
+    <div class="arch">
+      <div class="layer"><h3>Experience layer<small>What families use</small></h3><div class="items"><span class="d">VYRA Mobile</span><span class="d">VYRA Assistant</span><span class="d">Household Calendar</span><span class="d">Family Coordination</span></div></div>
+      <div class="layer core"><h3>Intelligence layer<small>Where VYRA reasons</small></h3><div class="items"><span class="p">Household Context Graph</span><span class="p">Predictive Intelligence</span><span class="p">Recommendation Engine</span><span class="p">Workflow Orchestration</span><span class="d">Permission &amp; Decision Controls</span></div></div>
+      <div class="layer"><h3>Integration layer<small>What VYRA connects to</small></h3><div class="items"><span class="p">Calendar</span><span class="p">Email</span><span class="p">Messaging</span><span class="p">Household Services</span><span class="p">Partner APIs</span></div></div>
+      <div class="layer trust"><h3>Trust &amp; governance<small>Across every layer</small></h3><div class="items"><span class="p">Role-based access</span><span class="p">Privacy controls</span><span class="p">Consent management</span><span class="p">Data security</span><span class="d">Human authorization</span></div></div>
+    </div>
+    <p class="note" style="margin-top:18px">The prototype shows the experience layer and the confirm-before-commit pattern, using scripted logic. The intelligence services and integrations are planned and not yet built. No security certifications are claimed.</p>
+  </div>
+</section>
+
+<!-- INVEST -->
+<section id="invest">
+  <div class="wrap two">
+    <div>
+      <div class="kicker"><b>Investment opportunity</b></div>
+      <h2>Building the Next Consumer AI Category.</h2>
+      <p class="lede">VYRA intends to raise external investment to fund product development, market validation and expansion. The company is designed to be capital-efficient, with a lean operating model.</p>
+    </div>
+    <div>
+      <ol class="thesis">
+        <li><em>01</em><div><b>A differentiated consumer AI product</b><span>Built around household context and coordination, not chat.</span></div></li>
+        <li><em>02</em><div><b>Recurring subscription potential</b><span>Family life repeats every week.</span></div></li>
+        <li><em>03</em><div><b>Regional distribution opportunities</b><span>Through operators, banks, insurers and benefit providers.</span></div></li>
+        <li><em>04</em><div><b>An international expansion strategy</b><span>From South Asia and the Gulf to Australasia.</span></div></li>
+        <li><em>05</em><div><b>A scalable household intelligence architecture</b><span>One context layer serving many experiences.</span></div></li>
+        <li><em>06</em><div><b>Multiple potential strategic acquirer categories</b><span>Spanning telecoms, consumer platforms and financial services.</span></div></li>
+      </ol>
+      <div style="margin-top:28px;display:flex;flex-direction:column;gap:12px">
+        <a class="btn primary" style="align-self:flex-start" href="mailto:umair.bintahir@gmail.com?subject=VYRA%20%E2%80%94%20Investment%20enquiry">Explore Investment Opportunities →</a>
+        <div class="mail note">Or write to <code>umair.bintahir@gmail.com</code> <button class="copy" type="button" data-copy="umair.bintahir@gmail.com">Copy</button></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PARTNER CTA -->
+<section id="partner">
+  <div class="wrap">
+    <div class="cta-card dark">
+      <span class="chip" style="align-self:flex-start">Strategic partnerships</span>
+      <h2>Bring VYRA to Your Customers.</h2>
+      <p class="lede" style="margin-top:0">VYRA is exploring distribution relationships with organisations that serve large consumer populations.</p>
+      <div class="pmodels"><span>Premium subscription bundles</span><span>Consumer digital services</span><span>Regional distribution agreements</span><span>Employee &amp; family benefit programs</span></div>
+      <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:center;margin-top:8px">
+        <a class="btn primary" href="mailto:umair.bintahir@gmail.com?subject=VYRA%20%E2%80%94%20Strategic%20partnership">Discuss a Strategic Partnership →</a>
+        <div class="mail">umair.bintahir@gmail.com <button class="copy" type="button" data-copy="umair.bintahir@gmail.com">Copy</button></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOUNDER -->
+<section id="founder">
+  <div class="wrap">
+    <div class="kicker"><b>Founder</b></div>
+    <div class="founder">
+      <div class="mono" aria-hidden="true">VYRA</div>
+      <div>
+        <p><strong>VYRA is founded by a technology executive with more than 22 years of global experience</strong> across technology leadership, enterprise platforms, data, analytics, AI and digital transformation, including CIO and CTO responsibilities.</p>
+        <p>The founder currently leads Data, Analytics &amp; Insights in a major telecommunications enterprise business and is developing several AI-based products. VYRA brings that enterprise experience to a consumer problem every family recognises.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <a class="logo" href="#top">VYRA<span>.</span></a>
+    <div>
+      <p>© 2026 VYRA. Invisible Intelligence. Human Control.</p>
+      <p>All product screens come from the VYRA prototype and use synthetic family data. Prototype interactions are scripted; no AI model, external account or integration is connected. Markets, partnership models and architecture describe plans, not current operations or commitments.</p>
+    </div>
+  </div>
+</footer>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+(function(){
+  const root=document.documentElement;
+  /* theme */
+  const btn=document.getElementById('themeBtn');
+  let saved=null; try{saved=localStorage.getItem('vyra-theme')}catch(e){}
+  if(saved) root.setAttribute('data-theme',saved);
+  btn.addEventListener('click',()=>{
+    const cur=root.getAttribute('data-theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');
+    const next=cur==='dark'?'light':'dark';
+    root.setAttribute('data-theme',next);
+    try{localStorage.setItem('vyra-theme',next)}catch(e){}
+  });
+
+  /* toast + copy */
+  const toast=document.getElementById('toast');
+  function say(t){toast.textContent=t;toast.classList.add('on');clearTimeout(say.t);say.t=setTimeout(()=>toast.classList.remove('on'),2200)}
+  document.querySelectorAll('[data-copy]').forEach(b=>b.addEventListener('click',async()=>{
+    try{await navigator.clipboard.writeText(b.dataset.copy);say('Email address copied')}catch(e){say('Copy blocked. Select the address to copy it.')}
+  }));
+
+  /* workflow demo */
+  const S=[
+    {k:'Capture',t:'A message arrives',d:'Sara forwards the school’s message to VYRA from the share sheet, or snaps the printed notice.',html:`
+      <div class="msg"><div class="from"><span><b>Year 3 Class Group</b> · Ms. Hale</span><span>Mon 7:42 PM</span></div>
+      Dear Year 3 parents, our school bake sale is this <b>Friday</b>. Please send baked goods to the classroom by <b>8:30 AM</b>, labelled with ingredients. Thank you!</div>
+      <p class="note">One message, among dozens that evening.</p>`},
+    {k:'Understand',t:'VYRA reads what matters',d:'The message becomes structured facts the family can check.',html:`
+      <div class="facts">
+        <div class="fact"><small>Child</small><b>Zara · Year 3</b><span class="why">Matched to the class group</span></div>
+        <div class="fact"><small>Event</small><b>School bake sale</b></div>
+        <div class="fact"><small>When</small><b>Friday · drop-off by 8:30 AM</b></div>
+        <div class="fact"><small>What’s needed</small><b>Baked goods with ingredient labels</b></div>
+      </div>`},
+    {k:'Connect',t:'It links to household context',d:'VYRA relates the event to people, routines and calendars it already knows.',html:`
+      <div class="facts">
+        <div class="fact"><small>Responsible parent</small><b>Adam</b><span class="why">Usually coordinates school events</span></div>
+        <div class="fact"><small>Free time</small><b>Thursday evening</b><span class="why">No family commitments</span></div>
+        <div class="fact"><small>Household help</small><b>Rosa · Thursday afternoons</b><span class="why">Available to help with baking</span></div>
+        <div class="fact"><small>Friday morning</small><b>School run at 7:45 AM</b><span class="why">Drop-off fits the routine</span></div>
+      </div>`},
+    {k:'Anticipate',t:'It works out what has to happen first',d:'VYRA works back from the deadline so nothing becomes a late-night scramble.',html:`
+      <div class="facts">
+        <div class="fact"><small>Shopping</small><b>Ingredients needed by Wednesday</b><span class="why">Baking happens Thursday</span></div>
+        <div class="fact"><small>Preparation</small><b>Ingredient labels needed</b><span class="why">Requested by the school</span></div>
+        <div class="fact"><small>Attention point</small><b>Friday 7:45 AM</b><span class="why">Pack the boxes for the school run</span></div>
+      </div>`},
+    {k:'Prepare',t:'It prepares everything, ready to review',d:'Drafts, not actions. Nothing has been sent, bought or scheduled.',html:`
+      <div class="outputs">
+        <div class="fact"><small>Shopping list</small><ul><li>Flour, sugar, butter, eggs</li><li>Cupcake cases (24)</li><li>Icing sugar, sprinkles</li><li>Boxes and labels</li></ul></div>
+        <div class="fact"><small>Suggested timeline</small><ul class="timeline"><li><span>Wed</span>Buy ingredients</li><li><span>Thu 4 PM</span>Bake with Rosa</li><li><span>Thu 8 PM</span>Label and pack</li><li><span>Fri 7:45</span>Leave with boxes</li></ul></div>
+        <div class="fact" style="grid-column:1/-1"><small>Ready to forward · for Rosa</small><span style="display:block;margin-top:6px">“Hi Rosa, could you help bake 24 cupcakes on Thursday at 4 PM for Zara’s school bake sale? Ingredients will be in the pantry by Wednesday evening. Please label each box with its ingredients. Thank you!”</span></div>
+      </div>`},
+    {k:'Coordinate',t:'A person approves, VYRA follows through',d:'VYRA never sends messages, makes purchases or delegates without permission.',html:`
+      <div class="approve" id="approve">
+        <div class="arow"><div><b>Add 3 entries to the family calendar</b><small>Wed shopping · Thu baking · Fri drop-off</small></div><button type="button" aria-pressed="false">Approve</button></div>
+        <div class="arow"><div><b>Assign the shopping list to Adam</b><small>Adam sees it in Actions</small></div><button type="button" aria-pressed="false">Approve</button></div>
+        <div class="arow"><div><b>Message for Rosa</b><small>You review and send it yourself</small></div><button type="button" aria-pressed="false">Approve</button></div>
+        <div class="arow"><div><b>Reminder on Friday at 7:45 AM</b><small>Only if the boxes aren’t marked as packed</small></div><button type="button" aria-pressed="false">Approve</button></div>
+      </div>
+      <p class="status" id="approveStatus">0 of 4 approved. Nothing happens until you approve.</p>`}
+  ];
+  const stepsEl=document.getElementById('steps'), panel=document.getElementById('stepPanel');
+  S.forEach((s,i)=>{const li=document.createElement('li');li.innerHTML=`<button type="button" role="tab" id="st${i}" aria-controls="stepPanel" aria-selected="${i===0}"><em>0${i+1}</em>${s.k}</button>`;stepsEl.appendChild(li)});
+  function step(i){
+    stepsEl.querySelectorAll('button').forEach((b,j)=>b.setAttribute('aria-selected',j===i));
+    const s=S[i];
+    panel.setAttribute('aria-labelledby','st'+i);
+    panel.innerHTML=`<div class="head"><div><div class="kicker" style="margin:0 0 8px"><b>Step 0${i+1} · ${s.k}</b></div><h3>${s.t}</h3><p>${s.d}</p></div></div>${s.html}
+      <div class="nav2"><button class="btn quiet" type="button" data-go="${i-1}" ${i===0?'disabled style="visibility:hidden"':''}>← Back</button><button class="btn primary" type="button" data-go="${(i+1)%S.length}">${i===S.length-1?'Start again':'Next: '+S[i+1].k+' →'}</button></div>`;
+    panel.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=>step(+b.dataset.go)));
+    const ap=panel.querySelector('#approve');
+    if(ap){ap.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{
+      const on=b.getAttribute('aria-pressed')!=='true';b.setAttribute('aria-pressed',on);b.textContent=on?'Approved ✓':'Approve';
+      const n=ap.querySelectorAll('[aria-pressed="true"]').length;
+      document.getElementById('approveStatus').textContent=n===4?'All 4 approved. In this demo nothing is actually sent or scheduled.':`${n} of 4 approved. Nothing happens until you approve.`;
+    }))}
+  }
+  stepsEl.addEventListener('click',e=>{const b=e.target.closest('button');if(b)step([...stepsEl.querySelectorAll('button')].indexOf(b))});
+  stepsEl.addEventListener('keydown',e=>{const bs=[...stepsEl.querySelectorAll('button')];let i=bs.indexOf(document.activeElement);if(i<0)return;if(e.key==='ArrowDown'||e.key==='ArrowRight'){i=(i+1)%bs.length}else if(e.key==='ArrowUp'||e.key==='ArrowLeft'){i=(i-1+bs.length)%bs.length}else return;e.preventDefault();step(i);bs[i].focus()});
+  step(0);
+
+  /* product features */
+  const F=[
+    {t:'Intelligent Home',d:'A concise daily briefing: the one thing that needs attention, what’s coming up, and what VYRA has already prepared.',b:'Start the day knowing what matters, without opening five apps.',shots:[['home','Briefing','VYRA daily briefing with one item needing attention']]},
+    {t:'Intelligent Calendar',d:'A family timeline that keeps confirmed commitments and VYRA’s suggestions clearly apart. A suggestion only becomes a commitment when someone confirms it.',b:'A calendar the whole family can trust.',n:'Day, week and month views are planned. This prototype shows the timeline view.',shots:[['calendar','Timeline','Family calendar with confirmed events and one AI suggestion awaiting confirmation'],['calendar-moved','After “Move to Sunday”','Calendar after moving winter shopping to Sunday as a proposal']]},
+    {t:'Ask VYRA',d:'A contextual assistant reachable from anywhere in the app. Speak naturally to move plans, take things over or see the week ahead.',b:'Change plans in a sentence, not a form.',n:'Responses are scripted in the prototype.',shots:[['ai','Conversation','Ask VYRA conversation summarising the week ahead']]},
+    {t:'Household Coordination',d:'Every responsibility has an owner. Prepared action packs turn a task into a checklist, and anyone can take over without notifying anyone else unless they choose to.',b:'Shared load, clear ownership, no nagging.',shots:[['actions','Action pack','Winter shopping action pack owned by Adam'],['actions-takeover','After “I’ve Got This”','Action pack after Sara takes over the task']]},
+    {t:'Unified Capture',d:'One place to drop in anything: a photo of a school notice, a screenshot, a document, a typed note or a voice note. VYRA drafts the event for you to review.',b:'Capture once. Never re-type a school notice again.',n:'In the prototype, extraction uses simple keyword rules and voice notes are typed.',shots:[['capture-choose','Capture','Capture sheet with photo, document, text and voice options'],['capture-review','Review','Drafted bake sale event ready for review before adding']]},
+    {t:'Family Privacy',d:'Shared awareness with individual privacy. Each adult controls access to their own accounts, and shared responsibilities never expose private messages or calendar details.',b:'Coordination without giving up personal boundaries.',n:'Role-based permissions are shown as a design principle. Enforcement is planned.',shots:[['family','Family','Family roles screen describing privacy by design']]}
+  ];
+  const fEl=document.getElementById('features'), img=document.getElementById('prodImg'), sn=document.getElementById('shotnav');
+  F.forEach((f,i)=>{const b=document.createElement('button');b.type='button';b.className='feat';b.setAttribute('role','tab');b.setAttribute('aria-selected',i===0);
+    b.innerHTML=`<h3>${f.t}<em>0${i+1}</em></h3><div class="more"><p>${f.d}</p><p class="gain">${f.b}</p>${f.n?`<p class="note">${f.n}</p>`:''}</div>`;
+    b.addEventListener('click',()=>feat(i));fEl.appendChild(b)});
+  function shot(s){img.style.opacity=.2;setTimeout(()=>{img.src='assets/'+s[0]+'.webp';img.alt=s[2];img.style.opacity=1;img.parentElement.scrollTop=0},140)}
+  function feat(i){
+    fEl.querySelectorAll('.feat').forEach((b,j)=>b.setAttribute('aria-selected',j===i));
+    const f=F[i];shot(f.shots[0]);sn.innerHTML='';
+    if(f.shots.length>1)f.shots.forEach((s,j)=>{const b=document.createElement('button');b.type='button';b.textContent=s[1];b.setAttribute('aria-pressed',j===0);
+      b.addEventListener('click',()=>{sn.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b));shot(s)});sn.appendChild(b)});
+  }
+  feat(0);
+
+  /* nav highlight */
+  const links=[...document.querySelectorAll('.nav ul a')];
+  const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){links.forEach(a=>a.classList.toggle('on',a.getAttribute('href')==='#'+e.target.id))}}),{rootMargin:'-45% 0px -50% 0px'});
+  document.querySelectorAll('section[id]').forEach(s=>io.observe(s));
+})();
+</script>
+</body>
+</html>
